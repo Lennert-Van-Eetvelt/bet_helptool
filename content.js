@@ -22,7 +22,7 @@ let oddSaverCounter = 0;
 let gamePageWaiter = -1;
 let lastWasG = false;
 let notifiedGames = [];
-let upcomingGames = Array.isArray(JSON.parse(localStorage.getItem("upcomingGames"))) ? JSON.parse(localStorage.getItem("upcomingGames")): []
+let upcomingGames = Array.isArray(JSON.parse(localStorage.getItem("upcomingGames"+getSite()))) ? JSON.parse(localStorage.getItem("upcomingGames"+getSite())): []
 let restarter = 0
 
 function addUpcomingGames(){
