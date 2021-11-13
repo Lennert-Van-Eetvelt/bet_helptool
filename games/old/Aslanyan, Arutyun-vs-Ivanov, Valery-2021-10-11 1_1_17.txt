@@ -1,0 +1,1 @@
+{"playerAName":"Aslanyan, Arutyun","playerBName":"Ivanov, Valery","beginOddsA":0,"beginOddsB":0,"states":[{"scoreA":[11,11,0,0,0,4],"scoreB":[7,9,0,0,0,8],"oddA":1.17,"oddB":4.9}],"time":"2021-10-11 1:1:17"}

@@ -1,0 +1,1 @@
+{"playerAName":"Moshkov, Ivan","playerBName":"Kryuchkov, Evgenii","beginOddsA":0,"beginOddsB":0,"states":[{"scoreA":[0,0,0,0,0,0],"scoreB":[0,0,0,0,0,0],"oddA":1.57,"oddB":2.33},{"scoreA":[0,0,0,0,0,0],"scoreB":[0,0,0,0,0,0],"oddA":1.36,"oddB":2.95},{"scoreA":[0,0,0,0,0,0],"scoreB":[0,0,0,0,0,0],"oddA":1.57,"oddB":2.33}],"time":"2021-10-18 21:15:18"}

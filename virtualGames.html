@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Virtual bet</title>
+</head>
+<body>
+<input type="file" id="fileinput" multiple/>
+<select id="games"></select>
+<p id="money"></p>
+<p>
+<div id="playerA"></div>
+<div id="playerB"></div>
+</p>
+<p><div id="beginOddsA"></div><div id="beginOddsB"></div></p>
+<div>
+    <p id="scoreA"></p>
+    <p id="scoreB"></p>
+</div>
+
+<button id="oddA" for="betA"></button>
+<input id="betA" type="number">
+<button id="oddB" for="betB"></button>
+<input id="betB" type="number">
+</body>
+<button id="nextStep">next</button>
+<button id="skip10">skip10</button>
+<b id="statestatus"></b>
+<p><button id="simulate">simulate</button>
+</p>
+<p><div id="betInfoA"></div></p>
+<p><div id="betInfoB"></div></p>
+
+<input autocomplete="off" class="mod-KambiBC-stake-input mod-KambiBC-js-stake-input" id="mod-KambiBC-betslip-stake-input-outcome-2998590312" maxlength="7" pattern="^[0-9]*[.,]{0,1}[0-9]{0,2}$" placeholder="€0.00" type="text" value="">
+<a href="#" onclick="fillInBetUnibet('a',10.05)">click</a>
+
+<script src="classes.js"></script>
+<script src="calculations.js"></script>
+<script src="playHelper.js"></script>
+<script src="unibetFunctions.js"></script>
+<script src="virtualgame.js"></script>
+</html>

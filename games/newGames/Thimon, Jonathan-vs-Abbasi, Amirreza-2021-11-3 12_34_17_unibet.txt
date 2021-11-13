@@ -1,0 +1,1 @@
+{"playerAName":"Thimon, Jonathan","playerBName":"Abbasi, Amirreza","beginOddsA":0,"beginOddsB":0,"states":[],"time":"2021-11-3 12:34:17"}

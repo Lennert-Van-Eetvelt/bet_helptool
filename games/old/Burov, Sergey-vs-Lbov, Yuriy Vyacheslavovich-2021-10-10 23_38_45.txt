@@ -1,0 +1,1 @@
+{"playerAName":"Burov, Sergey","playerBName":"Lbov, Yuriy Vyacheslavovich","beginOddsA":0,"beginOddsB":0,"states":[{"scoreA":[7,0,0,0,0,10],"scoreB":[11,0,0,0,0,12],"oddA":6.5,"oddB":1.12}],"time":"2021-10-10 23:38:45"}
