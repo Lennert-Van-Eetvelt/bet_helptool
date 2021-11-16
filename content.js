@@ -80,6 +80,8 @@ setInterval(function () {
             }
             oddSaverCounter--;
         } else {
+            console.log(window.location.href, getGameListPage())
+
             if (!lookingForGame)
                 gotMessage("startbtn", "", "")
             lastWasG = true;

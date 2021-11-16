@@ -258,10 +258,22 @@ function setGames() {
     games_.innerHTML = out;
 }
 
+function sum(list){
+    let out = 0 ;
+    list.forEach(m => out+= m)
+    return out;
+}
+
+
 function setBeginOdds(game) {
-    if (fromStart(game) && parseFloat(game.beginOddsA) === 0) {
-        game.beginOddsA = game.states[0].oddA;
-        game.beginOddsB = game.states[0].oddB;
+    for (let i = 0; i< game.states.length; i++){
+        let state = game.states[i]
+        if (sum(state.scoreA) !==0 || sum(state.scoreB) !==0)
+            return
+        if (state.oddA !== 0 && state.oddB !==0){
+            game.beginOddsA = state.oddA;
+            game.beginOddsB = state.oddB;
+        }
     }
 }
 
@@ -360,8 +372,11 @@ function nextState() {
 }
 
 function fromStart(game) {
-    if (parseFloat(game.beginOddsA) !== 0 && parseFloat(game.beginOddsB) !== 0)
+    if (parseFloat(game.beginOddsA) !== 0 && parseFloat(game.beginOddsB) !== 0) {
+        game.beginOddsA = parseFloat(game.beginOddsA);
+        game.beginOddsB = parseFloat(game.beginOddsB);
         return true;
+    }
     let fstart = true;
     let states = game.states
     for (let k = 0; k < states[0].scoreA.length; k++)
@@ -394,18 +409,25 @@ function getPlayers(game) {
 
 function getMaxOddsSets(game) {
     let out = [[], []]
+    let lastI = 0
     for (let k = 0; k < 5; k++) {
         let mxA = 0
         let mxB = 0
-        for (let i = 0; i < game.states.length; i++) {
+        for (let i = lastI; i < game.states.length; i++) {
+            console.log(k, i)
             let sets = getSets(game.states[i]);
-            if (sets <= k + 1 && game.states[i].oddA > mxA)
+            console.log(sets)
+            if (sets <= k +1)
+                break;
+            if (game.states[i].oddA > mxA)
                 mxA = game.states[i].oddA;
-            if (sets <= k + 1 && game.states[i].oddB > mxB)
+            if (game.states[i].oddB > mxB)
                 mxB = game.states[i].oddB;
+            lastI = i;
         }
         out[0].push(mxA)
         out[1].push(mxB)
+        console.log(out)
     }
     return out;
 }
@@ -488,7 +510,6 @@ function calcOddsWithOdds() {
     console.log(setOddList)
     console.log(JSON.stringify(setOddList))
 }
-
 
 function calcPointsScored() {
     let yD = 10;
