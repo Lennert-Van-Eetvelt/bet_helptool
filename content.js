@@ -91,7 +91,7 @@ setInterval(function () {
                 setTimeout(function () {
                     localStorage.setItem("auto", "yes");
                     window.location.href = getGameListPage();
-                }, 1000 + Math.random() * 1000);
+                }, 2000 + Math.random() * 1000);
             }
         }
 
@@ -128,7 +128,7 @@ function gotMessage(message, sender, sendResponse) {
         playGame(message[1], message[2], message[3]);
     if (message.length > 0 && message[0] === "spendMoney")
         // addSpendMoney(message[1])
-        fillInBet("a",.1+Math.random()*.10);
+        fillInBet("a",.1+Math.random()*.10, getStateInfo()[2]);
 
 
 }

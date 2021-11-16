@@ -72,9 +72,9 @@ function notifyOnNewGame(){
     if (isUnibet())
         return  notifyOnNewGameUnibet();
 }
-function fillInBet(player,bet){
+function fillInBet(player,bet, odd){
     if (isUnibet())
-        return fillInBetUnibet(player, bet)
+        return fillInBetUnibet(player, bet, odd)
 }
 
 function getUpcomingGames(){
@@ -82,4 +82,9 @@ function getUpcomingGames(){
         return getUpcomingGamesUnibet();
     // if (isBetway())
     //     return getUpcomingGamesBetway();
+}
+
+function getMoneyInBank(){
+    if (isUnibet())
+        return getMoneyInBankUnibet();
 }

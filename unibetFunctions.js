@@ -1,8 +1,8 @@
 setInterval(function () {
     let popups = document.getElementsByClassName("Modalstyle__Content-sc-13khgzf-3");
-    if (popups.length >0)
+    if (popups.length > 0)
         popups[0].getElementsByClassName("LinkButtonstyle__LinkButtonLabel-dm5bqq-0")[0].click();
-},300);
+}, 300);
 
 
 function isTimeOutUnibet() {
@@ -100,57 +100,67 @@ function notifyOnNewGameUnibet() {
     }
 }
 
-function fillInBetUnibet(player, bet) {
+function fillInBetUnibet(player, bet, odd) {
     if (fillingInBet)
         return;
-    bet = parseFloat(rnd(bet))
-    console.log("fill in bet ", player, bet)
-    fillingInBet = true;
-    if (document.getElementsByClassName("KambiBC-bet-offer-subcategory__label")[0].innerHTML !== "Noteringen wedstrijd")
-        return;
-    let delay = 0
-    if (closeOpenBetsUnibet())
-        delay = 500
-    setTimeout(async function () {
-        let pl = 0;
-        if (player === "b")
-            pl = 1;
-        document.getElementsByClassName("OutcomeButton-sc-lxwzc0-10")[pl].click();
-        let transiEle = document.getElementsByClassName("mod-KambiBC-betslip mod-KambiBC-js-betslip mod-KambiBC-betslip--legacy-transitions")[0]
-        let atrans = false;
-        let i = 0;
-        while (!atrans) {
-            console.log(transiEle.classList)
-            if (transiEle.classList.value.includes("--animating"))
+    try {
+        bet = parseFloat(rnd(bet))
+        console.log("fill in bet ", player, bet, odd)
+        fillingInBet = true;
+        if (document.getElementsByClassName("KambiBC-bet-offer-subcategory__label")[0].innerHTML !== "Noteringen wedstrijd")
+            return;
+        let delay = 0
+        if (closeOpenBetsUnibet())
+            delay = 500
+        setTimeout(async function () {
+            let pl = 0;
+            if (player === "b")
+                pl = 1;
+            document.getElementsByClassName("OutcomeButton-sc-lxwzc0-10")[pl].click();
+            let transiEle = document.getElementsByClassName("mod-KambiBC-betslip mod-KambiBC-js-betslip mod-KambiBC-betslip--legacy-transitions")[0]
+            let atrans = false;
+            let i = 0;
+            while (!atrans) {
+                console.log(transiEle.classList)
+                if (transiEle.classList.value.includes("--animating"))
                     atrans = true;
-            else
-                if (atrans)
+                else if (atrans)
                     break;
-            await sleep(50)
-            i++;
-            if (i > 100)
-                break;
-        }
+                await sleep(50)
+                i++;
+                if (i > 100)
+                    break;
+            }
 
-        setTimeout(function () {
-            sendInput(1840, 891, "yes", bet)
             setTimeout(function () {
-                console.log(parseFloat(document.getElementsByClassName("mod-KambiBC-stake-input mod-KambiBC-js-stake-input")[0].value), bet)
-                if (parseFloat(document.getElementsByClassName("mod-KambiBC-stake-input mod-KambiBC-js-stake-input")[0].value) === bet) {
-                    console.log("hiss")
-                    if (document.getElementsByClassName("mod-KambiBC-betslip__place-bet-btn")[0].innerHTML === "Inzetten") {
-                        console.log("hissss")
-                        sendInput(1770, 986, "yes", null)
-                    }
-                } else
+                if (odd !== 0 && parseFloat(document.getElementsByClassName("mod-KambiBC-betslip-outcome__odds")[0].innerText) !== odd) {
+                    console.log("odd is wrong")
                     fillingInBet = false;
-                // closeOpenBetsUnibet();
-            }, 400)
-        }, 500)
-        setTimeout(function () {
-            checkIfBetIsSuccessUnibet(0)
-        }, 1000)
-    }, delay);
+                    return
+                }
+                sendInput(1840, 891, "yes", bet)
+                setTimeout(function () {
+                    console.log(parseFloat(document.getElementsByClassName("mod-KambiBC-stake-input mod-KambiBC-js-stake-input")[0].value), bet)
+                    if (parseFloat(document.getElementsByClassName("mod-KambiBC-stake-input mod-KambiBC-js-stake-input")[0].value) === bet) {
+                        console.log("hiss")
+                        if (document.getElementsByClassName("mod-KambiBC-betslip__place-bet-btn")[0].innerHTML === "Inzetten") {
+                            console.log("hissss")
+                            document.getElementsByClassName("mod-KambiBC-betslip__place-bet-btn")[0].click();
+                            // sendInput(1770, 986, "yes", null)
+                        }
+                    } else
+                        fillingInBet = false;
+                    // closeOpenBetsUnibet();
+                }, 400)
+            }, 500)
+            setTimeout(function () {
+                checkIfBetIsSuccessUnibet(0)
+            }, 1000)
+        }, delay);
+    } catch (e) {
+        console.log("something went wrong filling in bet", e)
+        fillingInBet = false;
+    }
 }
 
 function closeOpenBetsUnibet() {
@@ -175,9 +185,9 @@ function checkIfBetIsSuccessUnibet(time) {
         // || receipts[0].getElementsByClassName("mod-KambiBC-receipt-outcome-item__odds").length < 1
         // || receipts[0].getElementsByClassName("mod-KambiBC-receipt-outcome-item__outcome-label").length < 1
     ) {
-        if (time < 10)
+        if (time < 15)
             setTimeout(function () {
-                checkIfBetIsSuccessUnibet(time+1)
+                checkIfBetIsSuccessUnibet(time + 1)
             }, 1000)
         else
             fillingInBet = false;
@@ -222,4 +232,16 @@ function getUpcomingGamesUnibet() {
         }
     }
     return gamz;
+}
+
+
+function getMoneyInBankUnibet() {
+    try {
+        return parseFloat(document.getElementsByClassName("detail-account-box")[0]
+            .getElementsByClassName("text total-amount")[0]
+            .innerText.replaceAll("€ ", ""))
+    } catch (e) {
+        console.log("something went wrong reading bank", e)
+        return 0;
+    }
 }
