@@ -83,7 +83,6 @@ function notifyOnNewGameUnibet() {
         if (btns[i].getElementsByClassName("_2f0dd").length < 1)
             btns[i].childNodes[0].click();
 
-        console.log(window.location.href, getGameListPageUnibet())
     if (window.location.href.startsWith(getGameListPageUnibet())) {
         let leagues = document.getElementsByClassName("_37451 _6668f _5d444 _5fa7f");
         for (let k = 0; k < leagues.length; k++) {
