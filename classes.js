@@ -20,12 +20,12 @@ function areSameStates(state1, state2) {
     }
 }
 
-function currentDateAndTime(){
+function currentDateAndTime() {
     var today = new Date();
     var date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
     var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
 
-    return  date + ' ' + time;
+    return date + ' ' + time;
 }
 
 
@@ -42,7 +42,7 @@ class Game {
 
     }
 
-    log(){
+    log() {
         console.log("------- new Game ------")
         console.log(this.playerAName)
         console.log(this.playerBName)
@@ -69,9 +69,9 @@ function getWinner(game) {
         let scoreA = game.states[game.states.length - 1].scoreA;
         let scoreB = game.states[game.states.length - 1].scoreB;
         for (let i = 0; i < scoreA.length; i++) {
-            if (scoreA > scoreB && scoreA >= 11)
+            if (scoreA > scoreB + 1 && scoreA >= 11)
                 aSets++;
-            else if (scoreB > scoreA && scoreB >= 11)
+            else if (scoreB > scoreA + 1 && scoreB >= 11)
                 bSets++;
         }
         if (aSets === 3)
@@ -83,7 +83,6 @@ function getWinner(game) {
     }
     return ""
 }
-
 
 
 class ScoreRound {
@@ -103,14 +102,13 @@ class ScoreRound {
                 this.roundN++;
 
 
-
         for (let k = stateN; k < game.states.length; k++) {
             let roundC = 0;
             for (let i = game.states[k].scoreB.length - 1; i >= 0; i--)
                 if (game.states[k].scoreB[i] !== 0 || game.states[k].scoreA[i] !== 0)
                     roundC++;
             // console.log(roundC + "\t " + " roundN : " + this.roundN )
-            if (roundC >this.roundN)
+            if (roundC > this.roundN)
                 break;
             if (game.states[k].oddA > this.maxComingA)
                 this.maxComingA = game.states[k].oddA;
@@ -122,7 +120,7 @@ class ScoreRound {
         this.beginB = game.beginOddsB;
 
         this.winnerGame = getVirtualWinner(game)
-        this.winnerRound = getWinnerRounds(game)[this.roundN-1];
+        this.winnerRound = getWinnerRounds(game)[this.roundN - 1];
     }
 }
 

@@ -3,7 +3,7 @@ console.log('hi content')
 
 let myGame = "";
 let lookingForGame = false;
-
+let fillingInBet = false;
 
 let auto = "yes" === localStorage.getItem("auto");
 localStorage.setItem("auto", "no");
@@ -26,21 +26,23 @@ let upcomingGames = Array.isArray(JSON.parse(localStorage.getItem("upcomingGames
 let restarter = 0
 
 function addUpcomingGames(){
-    getUpcomingGames().forEach(game =>{
-        let exists = false;
-        for (let i = 0; i<upcomingGames.length;i++){
-            if (upcomingGames[i].playerAName === game.playerAName &&
-            upcomingGames[i].playerBName === game.playerBName &&
-            upcomingGames[i].time === game.time){
-                upcomingGames[i].beginOddsA = game.beginOddsA;
-                upcomingGames[i].beginOddsB = game.beginOddsB;
-            exists = true;
+    try {
+        getUpcomingGames().forEach(game => {
+            let exists = false;
+            for (let i = 0; i < upcomingGames.length; i++) {
+                if (upcomingGames[i].playerAName === game.playerAName &&
+                    upcomingGames[i].playerBName === game.playerBName &&
+                    upcomingGames[i].time === game.time) {
+                    upcomingGames[i].beginOddsA = game.beginOddsA;
+                    upcomingGames[i].beginOddsB = game.beginOddsB;
+                    exists = true;
+                }
             }
-        }
-        if (!exists)
-            upcomingGames.push(game)
-    });
-    localStorage.setItem("upcomingGames"+getSite(), JSON.stringify(upcomingGames))
+            if (!exists)
+                upcomingGames.push(game)
+        });
+        localStorage.setItem("upcomingGames" + getSite(), JSON.stringify(upcomingGames))
+    }catch(e){}
 }
 
 setInterval(function () {
@@ -55,7 +57,7 @@ setInterval(function () {
             localStorage.setItem("auto", "yes");
             window.location.href = getGameListPage();
         }
-        if (window.location.href === getGameListPage()) {
+        if (window.location.href.startsWith(getGameListPage())) {
             if (lastWasG)
                 gotMessage("savebtn", "", "")
             lastWasG = false;
@@ -125,7 +127,8 @@ function gotMessage(message, sender, sendResponse) {
     if (message.length > 0 && message[0] === "play")
         playGame(message[1], message[2], message[3]);
     if (message.length > 0 && message[0] === "spendMoney")
-        addSpendMoney(message[1])
+        // addSpendMoney(message[1])
+        fillInBet("a",.1+Math.random()*.10);
 
 
 }
@@ -180,13 +183,18 @@ function getState() {
     try {
         // if (isTimeOut()) {console.log("time out");return ""}
         let stateInfo = getStateInfo();
+        // console.log(stateInfo)
         if (stateInfo.includes(undefined) || stateInfo[0].length === 0 || stateInfo[1].length === 0)
             return ""
         return new State(stateInfo[0], stateInfo[1], stateInfo[2], stateInfo[3]);
     } catch (e) {
-        // console.log(e)
+        console.log(e)
     }
     return "";
+}
+
+function successFilledInBet(player,bet, odd){
+    console.log("success " , player,bet,odd)
 }
 
 function saveGame() {
@@ -204,3 +212,6 @@ function download(text, filename) {
     a.click();
 }
 
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}

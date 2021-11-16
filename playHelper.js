@@ -297,16 +297,17 @@ function rnd(numb) {
 }
 
 function sendInput(mouseX,mouseY, click, keystrokes){
-    let url = "http://localhost:8080/?"
+    let url = "http://localhost:7777/?"
     if (mouseX !== null) url += "mouseX="+mouseX+"&"
     if (mouseY !== null) url += "mouseY="+mouseY+"&"
     if (click !== null) url += "click="+click+"&"
     if (keystrokes !== null) url += "keystrokes="+keystrokes+"&"
-    url+= "delay=5&"
-    url+= "delayFlux=5"
+    url+= "delay=1&"
+    url+= "delayFlux=2"
 
 
     let http = new XMLHttpRequest();
+    console.log(url)
     http.open("GET", url, true);
     http.send(null);
 }

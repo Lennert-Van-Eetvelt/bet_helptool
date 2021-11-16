@@ -80,4 +80,6 @@ function fillInBet(player,bet){
 function getUpcomingGames(){
     if (isUnibet())
         return getUpcomingGamesUnibet();
+    // if (isBetway())
+    //     return getUpcomingGamesBetway();
 }
