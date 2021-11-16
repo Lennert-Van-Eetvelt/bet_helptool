@@ -237,9 +237,9 @@ function getUpcomingGamesUnibet() {
 
 function getMoneyInBankUnibet() {
     try {
-        return parseFloat(document.getElementsByClassName("detail-account-box")[0]
+        return parseFloat(document.getElementsByClassName("account-container")[0]
             .getElementsByClassName("text total-amount")[0]
-            .innerText.replaceAll("€ ", ""))
+            .innerText.replaceAll("€ ", "").replaceAll(",","."))
     } catch (e) {
         console.log("something went wrong reading bank", e)
         return 0;

@@ -174,10 +174,12 @@ function sameTime(tme1, tme2){
     let date2 = tme2.split(" ")[0].split("-");
     let time2 = tme2.split(" ")[1].split(":");
 
-    let l1 = new Date(date1[0],date1[1],date1[2],time1[0],time1[1],time1[2]).getUTCMinutes()
-    let l2 = new Date(date2[0],date2[1],date2[2],time2[0],time2[1],time2[2]).getUTCMinutes()
+    let l1 = new Date(date1[0],date1[1],date1[2],time1[0],time1[1],time1[2]).getTime()/1000
+    let l2 = new Date(date2[0],date2[1],date2[2],time2[0],time2[1],time2[2]).getTime()/1000
 
-    return l1 +45 >l2 && l1-45 <l2
+    console.log(getMoneyInBank())
+
+    return l1 +45*60 >l2 && l1-45*60 <l2
 }
 
 
