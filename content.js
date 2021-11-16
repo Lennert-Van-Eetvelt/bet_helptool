@@ -80,8 +80,6 @@ setInterval(function () {
             }
             oddSaverCounter--;
         } else {
-            console.log(window.location.href, getGameListPage())
-
             if (!lookingForGame)
                 gotMessage("startbtn", "", "")
             lastWasG = true;
@@ -176,8 +174,6 @@ function sameTime(tme1, tme2){
 
     let l1 = new Date(date1[0],date1[1],date1[2],time1[0],time1[1],time1[2]).getTime()/1000
     let l2 = new Date(date2[0],date2[1],date2[2],time2[0],time2[1],time2[2]).getTime()/1000
-
-    console.log(getMoneyInBank())
 
     return l1 +45*60 >l2 && l1-45*60 <l2
 }
