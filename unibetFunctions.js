@@ -68,11 +68,12 @@ function goToGameUnibet() {
                 if (game.playerAName === nameA && game.playerBName === nameB && sameTime(game.time, currentDateAndTime()))
                     rtn = false;
             })
-            console.log(isWatchingGame(nameA,nameB), rtn)
+            console.log(isWatchingGame(nameA,nameB), rtn, nameA, nameB)
             if (isWatchingGame(nameA,nameB))
                 rtn = true;
             if (rtn)
                 break;
+            addWatchingGame("","")
             gamz[i].childNodes[0].click();
             console.log('pressing buttn');
             if (!lookingForGame)

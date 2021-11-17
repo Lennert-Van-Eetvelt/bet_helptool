@@ -86,7 +86,8 @@ function isWatchingGame(playerA, playerB) {
             watchingGames.splice(i, 1)
             saveWatchingGames()
             i--;
-        } else if (playerA === watchingGames[i][0] && playerB === watchingGames[i][1])
+        } else if ((playerA === watchingGames[i][0] && playerB === watchingGames[i][1]) ||(
+        watchingGames[i][0]=== "" && watchingGames[i][1] === ""))
             return true;
     }
     return false;
