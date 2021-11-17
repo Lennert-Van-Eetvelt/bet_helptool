@@ -106,8 +106,11 @@ setInterval(function () {
             window.location.href = getGameListPage();
         }
         if (window.location.href.startsWith(getGameListPage())) {
-            if (lastWasG)
+            if (lastWasG) {
+                console.log("last was g")
+                sleep(1000)
                 gotMessage("savebtn", "", "")
+            }
             lastWasG = false;
             myGame = "";
 
@@ -128,6 +131,7 @@ setInterval(function () {
             }
             oddSaverCounter--;
         } else {
+            console.log("gameeeee")
             if (!lookingForGame)
                 gotMessage("startbtn", "", "")
             lastWasG = true;
@@ -269,5 +273,8 @@ function download(text, filename) {
 }
 
 function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    let millis = new Date().getTime();
+    while(millis +ms > new Date().getTime())
+        true;
+    // return new Promise(resolve => setTimeout(resolve, ms));
 }
