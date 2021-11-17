@@ -131,7 +131,7 @@ setInterval(function () {
             }
             oddSaverCounter--;
         } else {
-            console.log("gameeeee")
+            console.log("gameeeee", window.location.href)
             if (!lookingForGame)
                 gotMessage("startbtn", "", "")
             lastWasG = true;
