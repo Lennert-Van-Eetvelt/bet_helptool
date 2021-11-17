@@ -106,11 +106,8 @@ setInterval(function () {
             window.location.href = getGameListPage();
         }
         if (window.location.href.startsWith(getGameListPage())) {
-            if (lastWasG) {
-                console.log("last was g")
-                sleep(1000)
+            if (lastWasG)
                 gotMessage("savebtn", "", "")
-            }
             lastWasG = false;
             myGame = "";
 
@@ -131,7 +128,6 @@ setInterval(function () {
             }
             oddSaverCounter--;
         } else {
-            console.log("gameeeee", window.location.href)
             if (!lookingForGame)
                 gotMessage("startbtn", "", "")
             lastWasG = true;

@@ -39,7 +39,7 @@ function getPlayerNamesUnibet() {
 }
 
 function getGameListPageUnibet() {
-    return "https://nl-sports.unibet.be/betting/sports/filter/table_tennis/"
+    return "https://nl-sports.unibet.be/betting/sports/filter/table_tennis"
 }
 
 function getOddListUnibet() {
