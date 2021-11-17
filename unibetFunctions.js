@@ -54,7 +54,7 @@ function gameIsDoneUnibet() {
 function goToGameUnibet() {
     let gamz = document.getElementsByClassName("fa117");
     for (let i = 0; i < gamz.length; i++)
-        if (gamz[i].childNodes[0].childNodes[0].childNodes[0].childNodes[0].innerHTML === "Set 1") {
+        if (gamz[i].childNodes[0].childNodes[0].childNodes[0].childNodes[0].innerHTML.startsWith("Set 1")) {
             let rtn = false;
 
             let el = gamz[i].getElementsByClassName("d36c5")
@@ -68,6 +68,9 @@ function goToGameUnibet() {
                 if (game.playerAName === nameA && game.playerBName === nameB && sameTime(game.time, currentDateAndTime()))
                     rtn = false;
             })
+            console.log(isWatchingGame(nameA,nameB), rtn)
+            if (isWatchingGame(nameA,nameB))
+                rtn = true;
             if (rtn)
                 break;
             gamz[i].childNodes[0].click();

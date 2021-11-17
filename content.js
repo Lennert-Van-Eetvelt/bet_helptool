@@ -23,6 +23,7 @@ let gamePageWaiter = -1;
 let lastWasG = false;
 let notifiedGames = [];
 let upcomingGames = Array.isArray(JSON.parse(localStorage.getItem("upcomingGames"+getSite()))) ? JSON.parse(localStorage.getItem("upcomingGames"+getSite())): []
+let watchingGames = getWatchingGames();
 let restarter = 0
 
 function addUpcomingGames(){
@@ -30,6 +31,10 @@ function addUpcomingGames(){
         getUpcomingGames().forEach(game => {
             let exists = false;
             for (let i = 0; i < upcomingGames.length; i++) {
+                if (stringTimeToUnix(upcomingGames[i].time) +60*60*24< getCurrentUnixTime()){
+                    upcomingGames.splice(i,1)
+                    i--;
+                }
                 if (upcomingGames[i].playerAName === game.playerAName &&
                     upcomingGames[i].playerBName === game.playerBName &&
                     upcomingGames[i].time === game.time) {
@@ -43,6 +48,48 @@ function addUpcomingGames(){
         });
         localStorage.setItem("upcomingGames" + getSite(), JSON.stringify(upcomingGames))
     }catch(e){}
+}
+
+console.log(watchingGames)
+
+function getWatchingGames(){
+    try {
+        return Array.isArray(JSON.parse(localStorage.getItem("watchingGames" + getSite()))) ? JSON.parse(localStorage.getItem("watchingGames" + getSite())) : []
+    }catch (e){
+        return []
+    }
+}
+
+function saveWatchingGames(){
+    localStorage.setItem("watchingGames"+getSite(),JSON.stringify(watchingGames))
+}
+
+function addWatchingGame(playerA, playerB){
+    watchingGames = getWatchingGames();
+    let changed = false;
+    watchingGames.forEach(game =>{
+        if (game[0] === playerA && game[1] === playerB) {
+            game[2] = getCurrentUnixTime()+""
+            changed = true;
+        }
+    })
+    if (!changed)
+       watchingGames.push([playerA,playerB,getCurrentUnixTime()+""])
+    saveWatchingGames()
+}
+
+function isWatchingGame(playerA, playerB) {
+    watchingGames = getWatchingGames();
+    for (let i = 0; i < watchingGames.length; i++) {
+        console.log(parseFloat(watchingGames[i][2]), getCurrentUnixTime(), parseFloat(watchingGames[i][2])- getCurrentUnixTime())
+        if (getCurrentUnixTime()- parseFloat(watchingGames[i][2]) >  15 ) {
+            watchingGames.splice(i, 1)
+            saveWatchingGames()
+            i--;
+        } else if (playerA === watchingGames[i][0] && playerB === watchingGames[i][1])
+            return true;
+    }
+    return false;
 }
 
 setInterval(function () {
@@ -91,7 +138,7 @@ setInterval(function () {
                 setTimeout(function () {
                     localStorage.setItem("auto", "yes");
                     window.location.href = getGameListPage();
-                }, 2000 + Math.random() * 1000);
+                }, 1000 + Math.random() * 500);
             }
         }
 
@@ -103,6 +150,8 @@ setInterval(
         if (lookingForGame) {
             if (myGame === "")
                 myGame = startGame();
+            else
+                addWatchingGame(myGame.playerAName, myGame.playerBName)
             let state = getState();
             if (state !== "" && myGame.playerAName)
                 myGame.addState(state)
@@ -165,16 +214,22 @@ function startGame() {
     return "";
 }
 
-function sameTime(tme1, tme2){
+function stringTimeToUnix(tme1){
     let date1 = tme1.split(" ")[0].split("-");
     let time1 = tme1.split(" ")[1].split(":");
+    return new Date(date1[0],date1[1],date1[2],time1[0],time1[1],time1[2]).getTime()/1000
+}
 
-    let date2 = tme2.split(" ")[0].split("-");
-    let time2 = tme2.split(" ")[1].split(":");
+function getCurrentUnixTime(){
+    return (new Date()).getTime() / 1000
+}
 
-    let l1 = new Date(date1[0],date1[1],date1[2],time1[0],time1[1],time1[2]).getTime()/1000
-    let l2 = new Date(date2[0],date2[1],date2[2],time2[0],time2[1],time2[2]).getTime()/1000
 
+function sameTime(tme1, tme2){
+    let l1 = stringTimeToUnix(tme1)
+    let l2 = stringTimeToUnix(tme2)
+
+    console.log(l1, l2)
     return l1 +45*60 >l2 && l1-45*60 <l2
 }
 

@@ -104,6 +104,20 @@ function multipleFileHandler(ev) {
     });
 }
 
+function savedGamesContainsGame(game){
+    savedGames.forEach(g =>{
+        if (game.beginOddsA === g.beginOddsA
+            && game.beginOddsB === g.beginOddsB
+            && game.time === g.time
+            && game.playerAName === g.playerAName
+            && game.playerBName === g.playerBName
+            && getVirtualWinner(game) === getVirtualWinner(g)
+        )return true;})
+
+        return false
+
+}
+
 function stats() {
     let firstSetWins = 0;
     let k = 0
@@ -260,7 +274,7 @@ function setGames() {
 
 function sum(list){
     let out = 0 ;
-    list.forEach(m => out+= m)
+    list.forEach(m => {out+= m})
     return out;
 }
 
@@ -414,10 +428,8 @@ function getMaxOddsSets(game) {
         let mxA = 0
         let mxB = 0
         for (let i = lastI; i < game.states.length; i++) {
-            console.log(k, i)
             let sets = getSets(game.states[i]);
-            console.log(sets)
-            if (sets <= k +1)
+            if (sets > k +1)
                 break;
             if (game.states[i].oddA > mxA)
                 mxA = game.states[i].oddA;
@@ -427,7 +439,6 @@ function getMaxOddsSets(game) {
         }
         out[0].push(mxA)
         out[1].push(mxB)
-        console.log(out)
     }
     return out;
 }
@@ -482,12 +493,12 @@ function calcOddsWithOdds() {
                 // wp[0] = Math.max(0,wp[0]-5);
                 // wp[1] = Math.max(0,wp[1]-3);
                 // line.push(wp[1]===0? 0:wp[0] /  wp[1])
-                line.push(wp[0] + "/ " + wp[1])
+                // line.push(wp[0] + "/ " + wp[1])
                 // line.push(rnd(wp[1]===0? 0: findBestBet(wp[0] /  wp[1], xDev[k])) + "  " +rnd(wp[0] /  wp[1]))
                 let prft = wp[0] * xDev[k] - wp[1]
                 if (prft < 0)
                     prft = 0
-                // line.push(rnd(prft))
+                line.push(rnd(prft))
                 if (wp[1] > 0 && prft > 0 && prft >= maxT[0]) {
                     maxT[0] = prft;
                     maxT[1] = xDev[k];
