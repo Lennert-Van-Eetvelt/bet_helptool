@@ -8,7 +8,7 @@
 
 	"content_scripts": [
 		{
-			"matches": ["https://nl-sports.unibet.be/*","https://sports.betway.be/*"],
+			"matches": ["https://nl-sports.unibet.be/*","https://sports.betway.be/*","https://nl.unibet.be/*"],
 			"js": ["jquery-3.5.1.min.js", "classes.js","generalFunctions.js","unibetFunctions.js","betwayFunctions.js", "content.js","playHelper.js"],
 			"run_at": "document_start"
 		}
@@ -19,6 +19,6 @@
 	"default_popup": "popup.html"},
 	
 	"permissions": [
-		"https://nl-sports.unibet.be/*","https://sports.betway.be/*","storage","tabs"
+		"https://nl-sports.unibet.be/*","https://sports.betway.be/*","storage","tabs","https://nl.unibet.be/*"
 		]
 }

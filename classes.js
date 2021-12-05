@@ -37,9 +37,7 @@ class Game {
         this.beginOddsB = beginOddsB;
         this.states = [];
 
-
         this.time = currentDateAndTime();
-
     }
 
     log() {
@@ -69,9 +67,9 @@ function getWinner(game) {
         let scoreA = game.states[game.states.length - 1].scoreA;
         let scoreB = game.states[game.states.length - 1].scoreB;
         for (let i = 0; i < scoreA.length; i++) {
-            if (scoreA > scoreB + 1 && scoreA >= 11)
+            if (scoreA[i] > scoreB[i] + 1 && scoreA[i] >= 11)
                 aSets++;
-            else if (scoreB > scoreA + 1 && scoreB >= 11)
+            else if (scoreB[i] > scoreA[i] + 1 && scoreB[i] >= 11)
                 bSets++;
         }
         if (aSets === 3)
@@ -126,11 +124,21 @@ class ScoreRound {
 
 
 class Player {
-    constructor(beginOdd, maxOdd, wins, maxOddSets, lastScore) {
+    constructor(beginOdd, maxOdd, wins, maxOddSets, states) {
         this.beginOdd = beginOdd;
         this.maxOdd = maxOdd;
         this.wins = wins;
         this.maxOddSets = maxOddSets;
-        this.lastScore = lastScore;
+        this.states = states;
+    }
+}
+
+class Bet {
+    constructor(player, bet, odd, score) {
+        this.player = player;
+        this.bet = bet;
+        this.odd = odd;
+        this.score = score;
+        this.set = Math.max(0, getSetsWithScore(score[0],score[1])-1);
     }
 }

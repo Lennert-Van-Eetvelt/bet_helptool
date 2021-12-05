@@ -72,9 +72,9 @@ function notifyOnNewGame(){
     if (isUnibet())
         return  notifyOnNewGameUnibet();
 }
-function fillInBet(player,bet, odd){
+function fillInBet(player,bet, odd,score){
     if (isUnibet())
-        return fillInBetUnibet(player, bet, odd)
+        return fillInBetUnibet(player, bet, odd,score)
 }
 
 function getUpcomingGames(){

@@ -6,7 +6,12 @@ let lookingForGame = false;
 let fillingInBet = false;
 
 let auto = "yes" === localStorage.getItem("auto");
+let autoSpend = "yes" === localStorage.getItem("autoSpend");
+console.log("auto", auto)
+console.log("autoSpend", autoSpend)
 localStorage.setItem("auto", "no");
+localStorage.setItem("autoSpend", "no");
+
 
 function changeAuto() {
     console.log("autooo")
@@ -16,23 +21,32 @@ function changeAuto() {
         localStorage.setItem("auto", 'no')
 }
 
+function changeAutoSpend() {
+    console.log("autooo spenddd")
+    autoSpend = !autoSpend;
+    if (!autoSpend)
+        localStorage.setItem("autoSpend", 'no')
+    else
+        auto = true;
+}
+
 let oddSaverCounter = 0;
 
 
 let gamePageWaiter = -1;
 let lastWasG = false;
 let notifiedGames = [];
-let upcomingGames = Array.isArray(JSON.parse(localStorage.getItem("upcomingGames"+getSite()))) ? JSON.parse(localStorage.getItem("upcomingGames"+getSite())): []
+let upcomingGames = Array.isArray(JSON.parse(localStorage.getItem("upcomingGames" + getSite()))) ? JSON.parse(localStorage.getItem("upcomingGames" + getSite())) : []
 let watchingGames = getWatchingGames();
 let restarter = 0
 
-function addUpcomingGames(){
+function addUpcomingGames() {
     try {
         getUpcomingGames().forEach(game => {
             let exists = false;
             for (let i = 0; i < upcomingGames.length; i++) {
-                if (stringTimeToUnix(upcomingGames[i].time) +60*60*24< getCurrentUnixTime()){
-                    upcomingGames.splice(i,1)
+                if (stringTimeToUnix(upcomingGames[i].time) + 60 * 60 * 24 < getCurrentUnixTime()) {
+                    upcomingGames.splice(i, 1)
                     i--;
                 }
                 if (upcomingGames[i].playerAName === game.playerAName &&
@@ -47,47 +61,50 @@ function addUpcomingGames(){
                 upcomingGames.push(game)
         });
         localStorage.setItem("upcomingGames" + getSite(), JSON.stringify(upcomingGames))
-    }catch(e){}
+    } catch (e) {
+    }
 }
 
 console.log(watchingGames)
 
-function getWatchingGames(){
+function getWatchingGames() {
     try {
         return Array.isArray(JSON.parse(localStorage.getItem("watchingGames" + getSite()))) ? JSON.parse(localStorage.getItem("watchingGames" + getSite())) : []
-    }catch (e){
+    } catch (e) {
         return []
     }
 }
 
-function saveWatchingGames(){
-    localStorage.setItem("watchingGames"+getSite(),JSON.stringify(watchingGames))
+function saveWatchingGames() {
+    localStorage.setItem("watchingGames" + getSite(), JSON.stringify(watchingGames))
 }
 
-function addWatchingGame(playerA, playerB){
+function addWatchingGame(playerA, playerB) {
+    if (autoSpend)
+        return
     watchingGames = getWatchingGames();
     let changed = false;
-    watchingGames.forEach(game =>{
+    watchingGames.forEach(game => {
         if (game[0] === playerA && game[1] === playerB) {
-            game[2] = getCurrentUnixTime()+""
+            game[2] = getCurrentUnixTime() + ""
             changed = true;
         }
     })
     if (!changed)
-       watchingGames.push([playerA,playerB,getCurrentUnixTime()+""])
+        watchingGames.push([playerA, playerB, getCurrentUnixTime() + ""])
     saveWatchingGames()
 }
 
 function isWatchingGame(playerA, playerB) {
     watchingGames = getWatchingGames();
     for (let i = 0; i < watchingGames.length; i++) {
-        console.log(parseFloat(watchingGames[i][2]), getCurrentUnixTime(), parseFloat(watchingGames[i][2])- getCurrentUnixTime())
-        if (getCurrentUnixTime()- parseFloat(watchingGames[i][2]) >  15 ) {
+        console.log(parseFloat(watchingGames[i][2]), getCurrentUnixTime(), parseFloat(watchingGames[i][2]) - getCurrentUnixTime())
+        if (getCurrentUnixTime() - parseFloat(watchingGames[i][2]) > 15) {
             watchingGames.splice(i, 1)
             saveWatchingGames()
             i--;
-        } else if ((playerA === watchingGames[i][0] && playerB === watchingGames[i][1]) ||(
-        watchingGames[i][0]=== "" && watchingGames[i][1] === ""))
+        } else if ((playerA === watchingGames[i][0] && playerB === watchingGames[i][1]) || (
+            watchingGames[i][0] === "" && watchingGames[i][1] === ""))
             return true;
     }
     return false;
@@ -101,8 +118,9 @@ setInterval(function () {
 
     if (auto) {
         restarter++;
-        if (restarter > 60*50/3){
+        if (restarter > 60 * 50 / 3) {
             localStorage.setItem("auto", "yes");
+            localStorage.setItem("autoSpend", autoSpend? "yes" : "no");
             window.location.href = getGameListPage();
         }
         if (window.location.href.startsWith(getGameListPage())) {
@@ -111,20 +129,19 @@ setInterval(function () {
             lastWasG = false;
             myGame = "";
 
-            if (gamePageWaiter < 0){
+            if (gamePageWaiter < 0) {
                 gamePageWaiter = 0;
                 return;
             }
 
-            gamePageWaiter = 10*2/3;
-
+            gamePageWaiter = 10 * 2 / 3;
 
 
             goToGame();
 
             if (oddSaverCounter <= 0) {
                 // saveAutoOddList();
-                oddSaverCounter = 60 * 60 * 5/3
+                oddSaverCounter = 60 * 60 * 5 / 3
             }
             oddSaverCounter--;
         } else {
@@ -138,6 +155,7 @@ setInterval(function () {
                 gotMessage("savebtn", "", "")
                 setTimeout(function () {
                     localStorage.setItem("auto", "yes");
+                    localStorage.setItem("autoSpend", autoSpend? "yes" : "no");
                     window.location.href = getGameListPage();
                 }, 1000 + Math.random() * 500);
             }
@@ -151,8 +169,13 @@ setInterval(
         if (lookingForGame) {
             if (myGame === "")
                 myGame = startGame();
-            else
+            else {
+                if (autoSpend && !playingGame)
+                    playGame(parseFloat(myGame.beginOddsA), parseFloat(myGame.beginOddsB), getMoneyInBank())
+                if (autoSpend)
+                    return
                 addWatchingGame(myGame.playerAName, myGame.playerBName)
+            }
             let state = getState();
             if (state !== "" && myGame.playerAName)
                 myGame.addState(state)
@@ -161,9 +184,10 @@ setInterval(
 
 try {
     chrome.runtime.onMessage.addListener(gotMessage);
-}catch (e){
+} catch (e) {
 
 }
+
 function gotMessage(message, sender, sendResponse) {
     console.log(message);
     if ("startbtn" === message) {
@@ -174,15 +198,20 @@ function gotMessage(message, sender, sendResponse) {
         saveGame();
     if ("auto" === message)
         changeAuto();
+    if ("autoSpend" === message)
+        changeAutoSpend()
     if (message.length > 0 && message[0] === "play")
         playGame(message[1], message[2], message[3]);
     if (message.length > 0 && message[0] === "spendMoney")
-        // addSpendMoney(message[1])
-        fillInBet("a",.1+Math.random()*.10, getStateInfo()[2]);
+        fillInBet("a", message[1] === null ? .1 + Math.random() * .10 : parseFloat(message[1]), getStateInfo()[2], [getStateInfo()[0], getStateInfo()[1]]);
 
-
+    if (message === "?")
+        sendMessage({autoSpend,auto})
 }
 
+function sendMessage(data) {
+        chrome.runtime.sendMessage(data);
+}
 
 function saveAutoOddList() {
     download(getOddList(), "odds " + Math.random() + " " + getSite() + ".html");
@@ -198,12 +227,12 @@ function startGame() {
         let beginOddsB = 0;
 
         let game = new Game(nameA, nameB, beginOddsA, beginOddsB);
-        for (let i = 0; i< upcomingGames.length; i++)
+        for (let i = 0; i < upcomingGames.length; i++)
             if (game.playerAName === upcomingGames[i].playerAName &&
-            game.playerBName === upcomingGames[i].playerBName &&
-                sameTime(game.time, upcomingGames[i].time)){
+                game.playerBName === upcomingGames[i].playerBName &&
+                sameTime(game.time, upcomingGames[i].time)) {
                 console.log("------- old game -------")
-                game = new Game(upcomingGames[i].playerAName,upcomingGames[i].playerBName,upcomingGames[i].beginOddsA,upcomingGames[i].beginOddsB)
+                game = new Game(upcomingGames[i].playerAName, upcomingGames[i].playerBName, upcomingGames[i].beginOddsA, upcomingGames[i].beginOddsB)
                 game.time = upcomingGames[i].time;
                 game.log()
                 return game;
@@ -215,23 +244,23 @@ function startGame() {
     return "";
 }
 
-function stringTimeToUnix(tme1){
+function stringTimeToUnix(tme1) {
     let date1 = tme1.split(" ")[0].split("-");
     let time1 = tme1.split(" ")[1].split(":");
-    return new Date(date1[0],date1[1],date1[2],time1[0],time1[1],time1[2]).getTime()/1000
+    return new Date(date1[0], date1[1], date1[2], time1[0], time1[1], time1[2]).getTime() / 1000
 }
 
-function getCurrentUnixTime(){
+function getCurrentUnixTime() {
     return (new Date()).getTime() / 1000
 }
 
 
-function sameTime(tme1, tme2){
+function sameTime(tme1, tme2) {
     let l1 = stringTimeToUnix(tme1)
     let l2 = stringTimeToUnix(tme2)
 
     console.log(l1, l2)
-    return l1 +45*60 >l2 && l1-45*60 <l2
+    return l1 + 45 * 60 > l2 && l1 - 45 * 60 < l2
 }
 
 
@@ -244,16 +273,19 @@ function getState() {
             return ""
         return new State(stateInfo[0], stateInfo[1], stateInfo[2], stateInfo[3]);
     } catch (e) {
-        console.log(e)
+        // console.log(e)
     }
     return "";
 }
 
-function successFilledInBet(player,bet, odd){
-    console.log("success " , player,bet,odd)
+function successFilledInBet(player, bet, odd, score) {
+    console.log("success ", player, bet, odd, score)
+    betHistory.push(new Bet(player, bet, odd, score))
 }
 
 function saveGame() {
+    if (autoSpend)
+    return
     console.log(JSON.stringify(myGame))
     if (myGame.playerAName !== undefined || myGame.playerBName !== undefined)
         download(JSON.stringify(myGame), myGame.playerAName + "-vs-" + myGame.playerBName + "-" + myGame.time + "_" + getSite() + ".txt");
@@ -270,7 +302,7 @@ function download(text, filename) {
 
 function sleep(ms) {
     let millis = new Date().getTime();
-    while(millis +ms > new Date().getTime())
+    while (millis + ms > new Date().getTime())
         true;
     // return new Promise(resolve => setTimeout(resolve, ms));
 }

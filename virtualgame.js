@@ -1,8 +1,6 @@
 console.log("virtual game runnin")
 
 
-
-
 try {
     document.getElementById("fileinput").addEventListener("change", function (ev) {
         multipleFileHandler(ev)
@@ -46,6 +44,7 @@ try {
 
 }
 
+
 let simulate = false;
 let savedGames = [];
 let gamePlaying = -1;
@@ -55,6 +54,15 @@ let betsA = [];
 let betsB = [];
 money = 100
 
+let All_Players = [];
+fetch("./ALL_PLAYERS.json")
+    .then(response => {
+        return response.json();
+    })
+    .then(data => {
+        All_Players = data;
+
+    });
 
 function readFileAsText(file) {
     return new Promise(function (resolve, reject) {
@@ -82,54 +90,138 @@ function multipleFileHandler(ev) {
             let game = JSON.parse(values[i]);
             if (game.states)
                 cleanStates(game.states)
-            if (game.states.length > 20 && getVirtualWinner(game) !== "" && fromStart(game)) {
+            if (game.states.length > 20 && getVirtualWinner(game) !== "" && fromStart(game) && !savedGamesContainsGame(game)) {
                 setBeginOdds(game)
                 savedGames.push(game)
                 // console.log(maxOdds(game))
             } else if (game.states.length <= 20)
                 console.log("noo length " + game.playerAName + "-vs-" + game.playerBName + "-" + game.time)
-            else if (getVirtualWinner(game) !== "")
+            else if (getVirtualWinner(game) === "")
                 console.log("noo winner " + game.playerAName + "-vs-" + game.playerBName + "-" + game.time)
-            else if (fromStart(game))
-                console.log("noo winner " + game.playerAName + "-vs-" + game.playerBName + "-" + game.time)
+            else if (!fromStart(game))
+                console.log("not from start " + game.playerAName + "-vs-" + game.playerBName + "-" + game.time)
+            else if (savedGamesContainsGame(game))
+                console.log("noo contained already " + game.playerAName + "-vs-" + game.playerBName + "-" + game.time)
 
 
         }
         setGames();
         calcPointsScored();
         stats();
-        calcOddsWithOdds();
+        calcChanceRandomStates();
+        // calcOddsWithOdds();
+        // arbitrageFinder();
         // chanceOffOddRisingInRound()
         // console.log(JSON.stringify(savedGames))
     });
 }
 
-function savedGamesContainsGame(game){
-    savedGames.forEach(g =>{
+setTimeout(function () {
+    console.log(All_Players)
+    getUpcomingPoints(All_Players, 1.35, [])
+}, 1000)
+
+function calcChanceRandomStates() {
+
+    let predictions = [];
+    for (let i = 0; i < 15000; i++) {
+        let game = savedGames[Math.floor(savedGames.length * Math.random())]
+        let state = game.states[Math.floor(game.states.length * Math.random())]
+
+        let setsA = getSetWinners(state.scoreA, state.scoreB)
+        let setsB = getSetWinners(state.scoreB, state.scoreA)
+        let pA = getUpcomingPoints(All_Players, game.beginOddsA, setsA)
+        let pB = getUpcomingPoints(All_Players, game.beginOddsB, setsB)
+
+        let chances = winChanceGame(state.scoreA, state.scoreB, pA, pB);
+        let winner = getVirtualWinner(game)
+
+        predictions.push({
+            "chance": chances[0],
+            "win": winner === "a",
+            "score0": state.scoreA,
+            "score1": state.scoreB,
+            "beginOdd": game.beginOddsA
+        })
+        predictions.push({
+            "chance": chances[1],
+            "win": winner === "b",
+            "score0": state.scoreB,
+            "score1": state.scoreA,
+            "beginOdd": game.beginOddsB
+        })
+    }
+    predictions = predictions.sort(function (a, b) {
+        return a.beginOdd - b.beginOdd
+    })
+    console.log(predictions)
+
+    let lastmo = 0
+    for (let b = 1; b <= 6; b++) {
+        let mo = predictions[Math.min(predictions.length-1, Math.floor(predictions.length * b / 6))].beginOdd;
+        let subP = [[mo]]
+        for (let i = 0; i < 100; i += 10) {
+            let pwt = [0, 0, 0, 0, i, 0]
+            predictions.forEach(p => {
+                if (p.chance * 100 >= i && p.chance * 100 <= i + 10 &&
+                    p.beginOdd <= mo && p.beginOdd >= lastmo) {
+                    if (p.win)
+                        pwt[1]++;
+                    pwt[2]++;
+                    pwt[3] += p.chance
+                }
+            });
+            pwt[0] = rnd(pwt[1] / pwt[2]);
+            pwt[3] = rnd(pwt[3] / pwt[2]);
+            pwt[5] = Math.max(0,parseFloat(pwt[3]) - parseFloat(pwt[0]) )+''
+            subP.push(pwt)
+        }
+        console.log(subP)
+        lastmo = mo;
+    }
+
+    // getUpcomingPoints(ALL_Players, 1.85, [])
+    // getUpcomingPoints(ALL_Players, 1.85, [0,1,1])
+    // getUpcomingPoints(ALL_Players, 1.85, [1,0,0])
+    // getUpcomingPoints(ALL_Players, 1.85, [1,1,0])
+
+}
+
+function savedGamesContainsGame(game) {
+    let out = false;
+    savedGames.forEach(g => {
         if (game.beginOddsA === g.beginOddsA
             && game.beginOddsB === g.beginOddsB
             && game.time === g.time
             && game.playerAName === g.playerAName
             && game.playerBName === g.playerBName
             && getVirtualWinner(game) === getVirtualWinner(g)
-        )return true;})
-
-        return false
+        ) out = true;
+    })
+    return out
 
 }
 
 function stats() {
     let firstSetWins = 0;
     let k = 0
+    let aWins = 0
+    let bWins = 0
+    let beginA = 0
+    let beginB = 0
     savedGames.forEach(game => {
-        if (game.beginOddsB>1.80 && game.beginOddsA <1.88) {
+        if (game.beginOddsB > 1.80 && game.beginOddsA < 1.88) {
             k++;
             if (getFirstSetWins(game))
                 firstSetWins++;
         }
+        if (getVirtualWinner(game) === "a") aWins++; else bWins++;
+        beginA += game.beginOddsA;
+        beginB += game.beginOddsB
     });
     printStats("firstSetWins", firstSetWins, k)
-
+    printStats("aWins", aWins, bWins)
+    printStats("beginA", beginA / savedGames.length, beginB / savedGames.length)
 }
 
 function printStats(name, a, b) {
@@ -209,9 +301,9 @@ function getVirtualWinner(game) {
             else if (scoreB[i] > scoreA[i] && scoreB[i] >= 11)
                 bSets++;
         }
-        if (aSets === 3 || (aSets === 2 && bSets < 2) || (aSets === 2 && bSets === 2 && scoreA[scoreA.length - 1] > scoreB[scoreB.length - 1]))
+        if (aSets >= 3 || (aSets === 2 && bSets < 2) || (aSets === 2 && bSets === 2 && scoreA[scoreA.length - 1] > scoreB[scoreB.length - 1]))
             return "a";
-        if (bSets === 3 || (bSets === 2 && aSets < 2) || (bSets === 2 && aSets === 2 && scoreB[scoreB.length - 1] > scoreA[scoreA.length - 1]))
+        if (bSets >= 3 || (bSets === 2 && aSets < 2) || (bSets === 2 && aSets === 2 && scoreB[scoreB.length - 1] > scoreA[scoreA.length - 1]))
             return "b";
     } catch (e) {
         // console.log(e)
@@ -272,19 +364,21 @@ function setGames() {
     games_.innerHTML = out;
 }
 
-function sum(list){
-    let out = 0 ;
-    list.forEach(m => {out+= m})
+function sum(list) {
+    let out = 0;
+    list.forEach(m => {
+        out += m
+    })
     return out;
 }
 
 
 function setBeginOdds(game) {
-    for (let i = 0; i< game.states.length; i++){
+    for (let i = 0; i < game.states.length; i++) {
         let state = game.states[i]
-        if (sum(state.scoreA) !==0 || sum(state.scoreB) !==0)
+        if (sum(state.scoreA) !== 0 || sum(state.scoreB) !== 0)
             return
-        if (state.oddA !== 0 && state.oddB !==0){
+        if (state.oddA !== 0 && state.oddB !== 0) {
             game.beginOddsA = state.oddA;
             game.beginOddsB = state.oddB;
         }
@@ -414,12 +508,23 @@ function playerWithHighestOddsWins(game) {
     return (game.beginOddsA < game.beginOddsB && winner === "a") || (game.beginOddsB < game.beginOddsA && winner === "b")
 }
 
+function getAllPlayers(games) {
+    let out = [];
+    games.forEach(game => {
+        let plys = getPlayers(game)
+        plys.forEach(player => {
+            out.push(player)
+        })
+    })
+    return out;
+}
 
 function getPlayers(game) {
-    let playerA = new Player(game.beginOddsA, maxOdds(game)[0], getVirtualWinner(game) === "a", getMaxOddsSets(game)[0], game.states[game.states.length - 1].scoreA);
-    let playerB = new Player(game.beginOddsB, maxOdds(game)[1], getVirtualWinner(game) === "b", getMaxOddsSets(game)[1], game.states[game.states.length - 1].scoreB);
+    let playerA = new Player(game.beginOddsA, maxOdds(game)[0], getVirtualWinner(game) === "a", getMaxOddsScore(game)[0], clone(game.states));
+    let playerB = new Player(game.beginOddsB, maxOdds(game)[1], getVirtualWinner(game) === "b", getMaxOddsScore(game)[1], clone(swapGame(game).states));
     return [playerA, playerB]
 }
+
 
 function getMaxOddsSets(game) {
     let out = [[], []]
@@ -429,7 +534,7 @@ function getMaxOddsSets(game) {
         let mxB = 0
         for (let i = lastI; i < game.states.length; i++) {
             let sets = getSets(game.states[i]);
-            if (sets > k +1)
+            if (sets > k + 1)
                 break;
             if (game.states[i].oddA > mxA)
                 mxA = game.states[i].oddA;
@@ -441,6 +546,97 @@ function getMaxOddsSets(game) {
         out[1].push(mxB)
     }
     return out;
+}
+
+function getMaxOddsScore(game) {
+    let out = [[], []]
+    for (let i = 0; i < possibleScoreList.length; i++) {
+        out[0].push(0)
+        out[1].push(0)
+    }
+    let lastI = 0
+    for (let k = 0; k < 5; k++) {
+        let mxA = 0
+        let mxB = 0
+        if (lastI < game.states.length) {
+            let scr = getPlayerSets(game.states[lastI].scoreA, game.states[lastI].scoreB)
+            for (let i = lastI; i < game.states.length; i++) {
+                let sets = getSets(game.states[i]);
+                if (sets > k + 1)
+                    break;
+                if (game.states[i].oddA > mxA)
+                    mxA = game.states[i].oddA;
+                if (game.states[i].oddB > mxB)
+                    mxB = game.states[i].oddB;
+                lastI = i;
+            }
+            out[0][getScoreI(scr)] = mxA;
+            out[1][getScoreI([scr[1], scr[0]])] = mxB;
+        }
+    }
+    return out;
+}
+
+
+function arbitrageFinder() {
+    return;
+    let gameList = getGameListLowA();
+    let groupN = 3;
+    let groups = [];
+    let p = 0;
+    for (let i = 0; i < groupN; i++) {
+        let line = []
+        if (i < groups - gameList.length % groupN) for (let k = 0; k < Math.floor(gameList.length / groupN); k++) {
+            line.push(gameList[p]);
+            p++;
+        }
+        else for (let k = 0; k < Math.floor(gameList.length / groupN + 1); k++) {
+            line.push(gameList[p]);
+            p++;
+        }
+        groups.push(line);
+    }
+    console.log(groups)
+
+}
+
+function getGameListLowA() {
+    let out = [];
+    savedGames.forEach(game => {
+        if (game.beginOddsA <= game.beginOddsB)
+            out.push(clone(game))
+        else
+            out.push(swapGame(game))
+    });
+    out = out.sort(function (a, b) {
+        return a.beginOddsA - b.beginOddsA;
+    });
+    return out;
+}
+
+function swapGame(game) {
+    let out = clone(game);
+    let nA = out.playerAName
+    let lA = out.beginOddsA;
+    out.playerAName = out.playerBName;
+    out.playerBName = nA;
+    out.beginOddsA = out.beginOddsB;
+    out.beginOddsB = lA;
+
+    out.states.forEach(state => {
+        let sA = clone(state.scoreA);
+        let nA = state.oddA;
+        state.scoreA = clone(state.scoreB);
+        state.scoreB = sA;
+        state.oddA = state.oddB;
+        state.oddB = nA;
+
+    })
+    return out;
+}
+
+function clone(object) {
+    return JSON.parse(JSON.stringify(object))
 }
 
 
@@ -460,9 +656,10 @@ function calcOddsWithOdds() {
     console.log(listPlayers)
 
     let setOddList = [];
-    for (let s = 0; s < 5; s++) {
+    for (let s = 0; s < possibleScoreList.length; s++) {
         let yDev = []
-        // let xDev = [0, 1, 1.35, 1.7, 2.05, 2.1, 2.2, 2.3, 2.4, 2.6, 2.7, 2.8, 3, 3.3, 3.7, 4.5, 5.2, 6, 8,10,12,12.5]
+        // yDev.push(possibleScoreList[s])
+        // let xDev = [0, 1,1.1,1.2,1.4,1.5,1.6, 1.7,1.85,1.95, 2.05, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8, 2.9, 3, 3.2, 3.5, 3.8, 4.1, 4.5, 5, 5.5, 6, 7, 8, 10, 12, 12.5]
         let xDev = [0, 1, 1.35, 1.7, 2.05, 2.3, 2.6, 3, 3.3, 4.5, 5.2, 8]
         let p = 0;
         for (let i = 0; i < yD; i++) {
@@ -481,6 +678,7 @@ function calcOddsWithOdds() {
         }
 
         let oddsList = [];
+        // oddsList.push(possibleScoreList[s])
         oddsList.push(xDev)
         // oddsList.push([0,0])
         for (let i = 0; i < yD; i++) {
@@ -489,22 +687,21 @@ function calcOddsWithOdds() {
             let maxT = [0, 0, 0, 0, 0]
             for (let k = 1; k < xDev.length; k++) {
                 // line.push(getWinPercentageSet(yDev[i], xDev[k], s))
-                let wp = getWinPercentageSet(yDev[i], xDev[k], s);
-                // wp[0] = Math.max(0,wp[0]-5);
-                // wp[1] = Math.max(0,wp[1]-3);
+                // let wp = getWinPercentageSet(yDev[i], xDev[k], s);
+                let wp = getWinPercentageScore(yDev[i], xDev[k], possibleScoreList[s], 30, 7);
+                wp[0] = Math.max(0, wp[0] - 4);
+                wp[1] = Math.max(0, wp[1] - 3);
                 // line.push(wp[1]===0? 0:wp[0] /  wp[1])
                 // line.push(wp[0] + "/ " + wp[1])
                 // line.push(rnd(wp[1]===0? 0: findBestBet(wp[0] /  wp[1], xDev[k])) + "  " +rnd(wp[0] /  wp[1]))
-                let prft = wp[0] * xDev[k] - wp[1]
-                if (prft < 0)
-                    prft = 0
-                line.push(rnd(prft))
+                let prft = Math.max(0, wp[0] * xDev[k] - wp[1])
+                line.push(parseFloat(rnd(prft)))
                 if (wp[1] > 0 && prft > 0 && prft >= maxT[0]) {
                     maxT[0] = prft;
                     maxT[1] = xDev[k];
                     maxT[2] = wp[0];
                     maxT[3] = wp[1];
-                    maxT[4] = findBestBet(wp[0] / wp[1], xDev[k])
+                    // maxT[4] = findBestBet(wp[0] / wp[1], xDev[k])
                 }
             }
             // line.push(maxT[1])
@@ -512,6 +709,8 @@ function calcOddsWithOdds() {
         }
         setOddList.push(oddsList)
     }
+
+    // fixSetOddMin(setOddList)
     if (true)
         for (let i = 0; i < setOddList.length; i++)
             for (let k = 0; k < setOddList[i].length; k++)
@@ -520,6 +719,20 @@ function calcOddsWithOdds() {
 
     console.log(setOddList)
     console.log(JSON.stringify(setOddList))
+}
+
+function fixSetOddMin(setOddList) {
+    for (let s = 0; s < setOddList.length; s++)
+        for (let r = 1; r < setOddList[s].length; r++) {
+            let max = 0;
+            for (let i = 1; i < setOddList[s][r].length; i++)
+                max = Math.max(max, setOddList[s][r][i])
+            for (let i = 1; i < setOddList[s][r].length; i++)
+                if (setOddList[s][r][i] < max)
+                    setOddList[s][r][i] = 0.0;
+                else
+                    break;
+        }
 }
 
 function calcPointsScored() {
@@ -587,10 +800,56 @@ function calcPointsScored() {
 //     while
 // }
 
+function getUpcomingPoints(players, beginOdd, sets) {
+    let playerSets = []
+    players.forEach(player => {
+        let state = player.states[player.states.length - 1];
+        let setsMatch = true;
+        for (let i = 0; i < sets.length; i++)
+            if (sets[i] === 1 && (state.scoreA[i] + 1 < state.scoreB[i] && state.scoreB[i] >= 11))
+                setsMatch = false;
+            else if (sets[i] === 0 && (state.scoreB[i] + 1 < state.scoreA[i] && state.scoreA[i] >= 11))
+                setsMatch = false;
+        if (setsMatch)
+            playerSets.push(player);
+    });
+    playerSets = playerSets.sort(function (a, b) {
+        return a.beginOdd - b.beginOdd
+    })
+    let m = 0;
+    let p = 0;
+    for (let i = 0; i < playerSets.length; i++)
+        if (playerSets[i].beginOdd < beginOdd)
+            m = i;
+        else break;
+    for (let i = playerSets.length - 1; i >= 0; i--)
+        if (playerSets[i].beginOdd > beginOdd)
+            p = i;
+        else break;
+    let pnts = [];
+    // console.log(playerSets)
+    for (let i = Math.max(0, Math.floor((m + p) / 2 - (.05) * playerSets.length)); i < Math.min(playerSets.length - 1, Math.ceil((m + p) / 2 + (.05) * playerSets.length)); i++) {
+        let ps = 0;
+        let z = 0;
+        let state = playerSets[i].states[playerSets[i].states.length - 1];
+        for (let k = sets.length; k < state.scoreA.length; k++) {
+            ps += state.scoreA[k]
+            z++;
+        }
+        pnts.push(ps / z)
+    }
+    let avgPnts = 0;
+    pnts.forEach(p => {
+        avgPnts += p
+    })
+    avgPnts = avgPnts / pnts.length;
+    return avgPnts
+}
+
 function getAverageTotalPoints(players) {
     let totalPoints = 0;
     players.forEach(player => {
-        totalPoints += getTotalPoints(player.lastScore) / getSetsScore(player.lastScore)
+        totalPoints += getTotalPoints(player.states[player.states.length - 1].scoreA) / getSetsScore(player.states[player.states.length - 1].scoreA)
     })
     return totalPoints / players.length;
 }
@@ -627,6 +886,44 @@ function getWinPercentage(players, maxOdd) {
         return bNum(0, 4) + " (" + rOddW + "/" + rOdd + ")";
     return bNum(rOddW / rOdd, 4) + " (" + rOddW + "/" + rOdd + ")";
 }
+
+function getWinPercentageScore(players, maxOdd, score, pointsMax, pointsMin) {
+    let rOdd = 0;
+    let rOddW = 0;
+    for (let i = 0; i < players.length; i++) {
+        // if (players[i].maxOddSets[getScoreI(score)] >= maxOdd) {
+        if (getMaxOdd(players[i].states, score, pointsMax, pointsMin) >= maxOdd) {
+            rOdd++;
+            if (players[i].wins)
+                rOddW++;
+        }
+    }
+    return [rOddW, rOdd]
+}
+
+function getMaxOdd(states, score, pointsMax, pointsMin) {
+    let max = 0;
+    states.forEach(state => {
+        let cS = getCurrentScores(state.scoreA, state.scoreB)
+        if (JSON.stringify(getPlayerSets(state.scoreA, state.scoreB)) === JSON.stringify(score) &&
+            (cS[0] < pointsMax && cS[1] < pointsMax) &&
+            (cS[0] >= pointsMin || cS[1] >= pointsMin))
+            max = Math.max(max, state.oddA)
+    })
+    return max;
+}
+
+function getCurrentScores(scoreA, scoreB) {
+    let a = 0;
+    let b = 0
+    for (let i = 0; i < scoreA.length; i++)
+        if (scoreA[i] !== 0 || scoreB[i] !== 0) {
+            a = scoreA[i]
+            b = scoreB[i]
+        }
+    return [a, b]
+}
+
 
 function getWinPercentageSet(players, maxOdd, set) {
     let rOdd = 0;

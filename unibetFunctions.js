@@ -1,8 +1,12 @@
 setInterval(function () {
+    try{
     let popups = document.getElementsByClassName("Modalstyle__Content-sc-13khgzf-3");
     if (popups.length > 0)
         popups[0].getElementsByClassName("LinkButtonstyle__LinkButtonLabel-dm5bqq-0")[0].click();
-}, 300);
+    popups = document.getElementsByClassName("mod-KambiBC-betslip__overlay mod-KambiBC-betslip__overlay--error");
+    if (popups.length>0)
+        popups[0].getElementsByClassName("mod-KambiBC-betslip-button mod-KambiBC-betslip-button--highlighted")[0].click();
+}catch (e) {}}, 300);
 
 
 function isTimeOutUnibet() {
@@ -54,8 +58,12 @@ function gameIsDoneUnibet() {
 function goToGameUnibet() {
     let gamz = document.getElementsByClassName("fa117");
     for (let i = 0; i < gamz.length; i++)
-        if (gamz[i].childNodes[0].childNodes[0].childNodes[0].childNodes[0].innerHTML.startsWith("Set 1")) {
-            let rtn = false;
+        if (gamz[i].childNodes[0].childNodes[0].childNodes[0].childNodes[0].innerHTML.startsWith("Set 1")
+            || (autoSpend &&
+                (gamz[i].childNodes[0].childNodes[0].childNodes[0].childNodes[0].innerHTML.startsWith("Set 2")
+                ||gamz[i].childNodes[0].childNodes[0].childNodes[0].childNodes[0].innerHTML.startsWith("Set 3"))
+        )) {
+            let rtn = autoSpend;//false
 
             let el = gamz[i].getElementsByClassName("d36c5")
             for (let i = 0; i < el.length; i++)
@@ -66,14 +74,15 @@ function goToGameUnibet() {
             let nameB = gamz[i].getElementsByClassName("af24c")[1].textContent;
             upcomingGames.forEach(game => {
                 if (game.playerAName === nameA && game.playerBName === nameB && sameTime(game.time, currentDateAndTime()))
-                    rtn = false;
+                    if (!autoSpend || game.beginOddsA <= 1.65 || game.beginOddsB <= 1.65)
+                        rtn = false;
             })
-            console.log(isWatchingGame(nameA,nameB), rtn, nameA, nameB)
-            if (isWatchingGame(nameA,nameB))
+            console.log(isWatchingGame(nameA, nameB), rtn, nameA, nameB)
+            if (isWatchingGame(nameA, nameB) && !autoSpend)
                 rtn = true;
             if (rtn)
                 break;
-            addWatchingGame("","")
+            addWatchingGame("", "")
             gamz[i].childNodes[0].click();
             console.log('pressing buttn');
             if (!lookingForGame)
@@ -104,12 +113,16 @@ function notifyOnNewGameUnibet() {
     }
 }
 
-function fillInBetUnibet(player, bet, odd) {
+function fillInBetUnibet(player, bet, odd, score) {
+    // setTimeout(function (){fillingInBet = false;},15000)
+    console.log("fill in bet ",fillingInBet, player, bet, odd, score)
+
+    if (!window.location.href.startsWith("https://nl-sports.unibet.be/betting/sports/event/live"))
+        return;
     if (fillingInBet)
         return;
     try {
         bet = parseFloat(rnd(bet))
-        console.log("fill in bet ", player, bet, odd)
         fillingInBet = true;
         if (document.getElementsByClassName("KambiBC-bet-offer-subcategory__label")[0].innerHTML !== "Noteringen wedstrijd")
             return;
@@ -121,28 +134,14 @@ function fillInBetUnibet(player, bet, odd) {
             if (player === "b")
                 pl = 1;
             document.getElementsByClassName("OutcomeButton-sc-lxwzc0-10")[pl].click();
-            let transiEle = document.getElementsByClassName("mod-KambiBC-betslip mod-KambiBC-js-betslip mod-KambiBC-betslip--legacy-transitions")[0]
-            let atrans = false;
-            let i = 0;
-            while (!atrans) {
-                console.log(transiEle.classList)
-                if (transiEle.classList.value.includes("--animating"))
-                    atrans = true;
-                else if (atrans)
-                    break;
-                await sleep(50)
-                i++;
-                if (i > 100)
-                    break;
-            }
-
             setTimeout(function () {
                 if (odd !== 0 && parseFloat(document.getElementsByClassName("mod-KambiBC-betslip-outcome__odds")[0].innerText) !== odd) {
                     console.log("odd is wrong")
                     fillingInBet = false;
                     return
                 }
-                sendInput(1840, 891, "yes", bet)
+                clickOnElement(document.getElementsByClassName("mod-KambiBC-stake-input mod-KambiBC-js-stake-input")[0], bet)
+                // sendInput(1840, 891, "yes", bet)
                 setTimeout(function () {
                     console.log(parseFloat(document.getElementsByClassName("mod-KambiBC-stake-input mod-KambiBC-js-stake-input")[0].value), bet)
                     if (parseFloat(document.getElementsByClassName("mod-KambiBC-stake-input mod-KambiBC-js-stake-input")[0].value) === bet) {
@@ -154,11 +153,12 @@ function fillInBetUnibet(player, bet, odd) {
                         }
                     } else
                         fillingInBet = false;
-                    // closeOpenBetsUnibet();
+                    closeOpenBetsUnibet();
                 }, 400)
-            }, 500)
+            }, 700);
+
             setTimeout(function () {
-                checkIfBetIsSuccessUnibet(0)
+                checkIfBetIsSuccessUnibet(0, score)
             }, 1000)
         }, delay);
     } catch (e) {
@@ -166,6 +166,7 @@ function fillInBetUnibet(player, bet, odd) {
         fillingInBet = false;
     }
 }
+
 
 function closeOpenBetsUnibet() {
     let out = false;
@@ -179,30 +180,33 @@ function closeOpenBetsUnibet() {
     return out;
 }
 
-function checkIfBetIsSuccessUnibet(time) {
-    if (!fillingInBet)
-        return;
-    console.log("checking if shit is happenin?")
-    let receipts = document.getElementsByClassName("mod-KambiBC-betslip__overlay mod-KambiBC-betslip__overlay--information")
-    if (receipts.length < 1
-        // || receipts[0].getElementsByClassName("mod-KambiBC-betslip-receipt__stake").length < 1
-        // || receipts[0].getElementsByClassName("mod-KambiBC-receipt-outcome-item__odds").length < 1
-        // || receipts[0].getElementsByClassName("mod-KambiBC-receipt-outcome-item__outcome-label").length < 1
-    ) {
-        if (time < 15)
-            setTimeout(function () {
-                checkIfBetIsSuccessUnibet(time + 1)
-            }, 1000)
-        else
-            fillingInBet = false;
-        return;
-    }
-    let bet = parseFloat(receipts[0].getElementsByClassName("mod-KambiBC-betslip-receipt__stake")[0].innerHTML.replaceAll("€", ""))
-    let odd = parseFloat(receipts[0].getElementsByClassName("mod-KambiBC-receipt-outcome-item__odds")[0].innerHTML)
-    let player = receipts[0].getElementsByClassName("mod-KambiBC-receipt-outcome-item__outcome-label")[0].innerHTML
-    console.log("whut")
-    successFilledInBet(player, bet, odd)
-    receipts[0].getElementsByClassName("mod-KambiBC-betslip-receipt__close-button")[0].click();
+function checkIfBetIsSuccessUnibet(time, score) {
+    try {
+        if (!fillingInBet)
+            return;
+        console.log("checking if shit is happenin?")
+        let receipts = document.getElementsByClassName("mod-KambiBC-betslip__overlay mod-KambiBC-betslip__overlay--information")
+        if (receipts.length < 1
+            // || receipts[0].getElementsByClassName("mod-KambiBC-betslip-receipt__stake").length < 1
+            // || receipts[0].getElementsByClassName("mod-KambiBC-receipt-outcome-item__odds").length < 1
+            // || receipts[0].getElementsByClassName("mod-KambiBC-receipt-outcome-item__outcome-label").length < 1
+        ) {
+            if (time < 15)
+                setTimeout(function () {
+                    checkIfBetIsSuccessUnibet(time + 1, score)
+                }, 1000)
+            else
+                fillingInBet = false;
+            return;
+        }
+        fillingInBet = false;
+        let bet = parseFloat(receipts[0].getElementsByClassName("mod-KambiBC-betslip-receipt__stake")[0].innerHTML.replaceAll("€", ""))
+        let odd = parseFloat(receipts[0].getElementsByClassName("mod-KambiBC-receipt-outcome-item__odds")[0].innerHTML)
+        let player = receipts[0].getElementsByClassName("mod-KambiBC-receipt-outcome-item__outcome-label")[0].innerHTML
+        console.log("whut")
+        successFilledInBet(player, bet, odd, score)
+        receipts[0].getElementsByClassName("mod-KambiBC-betslip-receipt__close-button")[0].click();
+    }catch (e){fillingInBet = false;}
 }
 
 function getUpcomingGamesUnibet() {
@@ -243,7 +247,7 @@ function getMoneyInBankUnibet() {
     try {
         return parseFloat(document.getElementsByClassName("account-container")[0]
             .getElementsByClassName("text total-amount")[0]
-            .innerText.replaceAll("€ ", "").replaceAll(",","."))
+            .innerText.replaceAll("€ ", "").replaceAll(",", "."))
     } catch (e) {
         console.log("something went wrong reading bank", e)
         return 0;
