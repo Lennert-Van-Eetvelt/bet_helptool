@@ -1,0 +1,1 @@
+{"playerAName":"Minkov, Miroslav","playerBName":"Yemets, Dmitriy","beginOddsA":"1.54","beginOddsB":"2.32","states":[{"scoreA":[0,0,0,0,0,0],"scoreB":[0,0,0,0,0,0],"oddA":0,"oddB":0},{"scoreA":[0,0,0,0,0,0],"scoreB":[0,0,0,0,0,0],"oddA":1.42,"oddB":2.65}],"time":"2021-11-18 14:45:0"}

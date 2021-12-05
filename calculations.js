@@ -8,16 +8,17 @@ setTimeout(function () {
     // console.log(winChanceGame([11, 8, 11, 5, 0], [9, 11, 3, 11, 0], 8, 9))
     // let wC = winChanceGame([11], [0], 9, 9);
     // console.log(oneOver(winChanceGame([12,11,8,8], [10,9,11,5], 9.904878048780489, 8.2)));
-    console.log((winChanceGame([8,11,11,12], [11,8,8,13], 8.871485943775099,9.445528455284554)));
+    // console.log((winChanceGame([8,11,11,12], [11,8,8,13], 8.871485943775099,9.445528455284554)));
     // console.log(wC)
     // console.log(1/wC[0], 1/wC[1])
 }, 100);
 
 function oneOver(val){
     let out = [];
-    val.forEach(v =>{out.push(1/v)})
+    val.forEach(v =>out.push(1/v))
     return out;
 }
+
 
 
 function winChanceGame(scoreA, scoreB, pointsA, pointsB) {
@@ -309,7 +310,7 @@ function bestBet(chance, odd) {
     return bestamount;
 }
 
-function nthroot(x, n) {
+function nthRoot(x, n) {
     try {
         var negate = n % 2 == 1 && x < 0;
         if (negate)
@@ -321,6 +322,10 @@ function nthroot(x, n) {
     } catch (e) {
     }
 }
+function getBaseLog(x, y) {
+    return Math.log(y) / Math.log(x);
+}
+
 
 function simStreak(chance, betamount, money, odd, times) {
 

@@ -1,0 +1,1 @@
+{"playerAName":"Chernyavskiy, Mikhail","playerBName":"Vologzhanin, Vladimir","beginOddsA":"3.40","beginOddsB":"1.27","states":[{"scoreA":[0,0,0,0,0,0],"scoreB":[0,0,0,0,0,0],"oddA":0,"oddB":0},{"scoreA":[0,0,0,0,0,0],"scoreB":[0,0,0,0,0,0],"oddA":3.55,"oddB":1.28},{"scoreA":[0,0,0,0,0,0],"scoreB":[0,0,0,0,0,0],"oddA":0,"oddB":0}],"time":"2021-11-20 7:15:0"}

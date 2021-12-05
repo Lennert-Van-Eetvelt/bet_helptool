@@ -1,0 +1,1 @@
+{"playerAName":"Tsitselskii, Artem","playerBName":"Sadovskiy, Nikita","beginOddsA":"1.33","beginOddsB":"3.00","states":[{"scoreA":[0,0,0,0,0,1],"scoreB":[0,0,0,0,0,2],"oddA":0,"oddB":0},{"scoreA":[0,0,0,0,0,1],"scoreB":[0,0,0,0,0,1],"oddA":1.45,"oddB":2.63},{"scoreA":[0,0,0,0,0,1],"scoreB":[0,0,0,0,0,1],"oddA":0,"oddB":0}],"time":"2021-11-22 22:45:0"}

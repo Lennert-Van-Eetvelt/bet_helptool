@@ -54,15 +54,6 @@ let betsA = [];
 let betsB = [];
 money = 100
 
-let All_Players = [];
-fetch("./ALL_PLAYERS.json")
-    .then(response => {
-        return response.json();
-    })
-    .then(data => {
-        All_Players = data;
-
-    });
 
 function readFileAsText(file) {
     return new Promise(function (resolve, reject) {
@@ -784,67 +775,8 @@ function calcPointsScored() {
     console.log(JSON.stringify(setOddList))
 }
 
-// function specialBestAmountToBet(setOddList){
-//     for (let s = 0; s< setOddList.length; s++)
-//         for (let i = )
-//
-// }
-//
-// function simulateSpecialBestAmountToBet(returns, line, percentages){
-//
-// }
-//
-// function allPossibleDevisions(length, value){
-//     let out = []
-//     let option = []
-//     while
-// }
 
-function getUpcomingPoints(players, beginOdd, sets) {
-    let playerSets = []
-    players.forEach(player => {
-        let state = player.states[player.states.length - 1];
-        let setsMatch = true;
-        for (let i = 0; i < sets.length; i++)
-            if (sets[i] === 1 && (state.scoreA[i] + 1 < state.scoreB[i] && state.scoreB[i] >= 11))
-                setsMatch = false;
-            else if (sets[i] === 0 && (state.scoreB[i] + 1 < state.scoreA[i] && state.scoreA[i] >= 11))
-                setsMatch = false;
-        if (setsMatch)
-            playerSets.push(player);
-    });
-    playerSets = playerSets.sort(function (a, b) {
-        return a.beginOdd - b.beginOdd
-    })
-    let m = 0;
-    let p = 0;
-    for (let i = 0; i < playerSets.length; i++)
-        if (playerSets[i].beginOdd < beginOdd)
-            m = i;
-        else break;
-    for (let i = playerSets.length - 1; i >= 0; i--)
-        if (playerSets[i].beginOdd > beginOdd)
-            p = i;
-        else break;
-    let pnts = [];
-    // console.log(playerSets)
-    for (let i = Math.max(0, Math.floor((m + p) / 2 - (.05) * playerSets.length)); i < Math.min(playerSets.length - 1, Math.ceil((m + p) / 2 + (.05) * playerSets.length)); i++) {
-        let ps = 0;
-        let z = 0;
-        let state = playerSets[i].states[playerSets[i].states.length - 1];
-        for (let k = sets.length; k < state.scoreA.length; k++) {
-            ps += state.scoreA[k]
-            z++;
-        }
-        pnts.push(ps / z)
-    }
-    let avgPnts = 0;
-    pnts.forEach(p => {
-        avgPnts += p
-    })
-    avgPnts = avgPnts / pnts.length;
-    return avgPnts
-}
+
 
 function getAverageTotalPoints(players) {
     let totalPoints = 0;
