@@ -47,8 +47,8 @@ function addSpendMoney(mony) {
 }
 
 function newScore(state) {
-    return (JSON.stringify(state.scoreA) !== JSON.stringify(this.lastState.scoreA) || JSON.stringify(state.scoreB) !== JSON.stringify(this.lastState.scoreB)) &&
-        (state.oddA !== this.lastState.oddA && state.oddB !== this.lastState.oddB)
+    return lastState === "" || (JSON.stringify(state.scoreA) !== JSON.stringify(lastState.scoreA) || JSON.stringify(state.scoreB) !== JSON.stringify(lastState.scoreB)) &&
+        (state.oddA !== lastState.oddA && state.oddB !== lastState.oddB)
 }
 
 
@@ -76,11 +76,18 @@ function betIfNeeded(state) {
     let betOnSetA = false;
     let betOnSetB = false;
     betHistory.forEach(bet => {
-        if (bet.set === set)
-            if (bet.player === "a")
+        if (bet.set === set) {
+            console.log(bet.player)
+            if (bet.player !== myGame.playerBName)
                 betOnSetA = true;
-            else betOnSetB = true;
+            if (bet.player !== myGame.playerAName)
+                betOnSetB = true;
+        }
     });
+    console.log(mBeginA,mBeginB)
+    if (mBeginA <= 1 || mBeginB <= 1 || mBeginA>10 || mBeginB>10 ||
+    state.oddA <=1 || state.oddB<=1)
+        return;
     console.log("betOnSetA", betOnSetA)
     console.log("betOnSetB", betOnSetB)
 
@@ -90,13 +97,15 @@ function betIfNeeded(state) {
     let pB = getUpcomingPoints(All_Players, mBeginB, setsB)
 
     let chances = winChanceGame(state.scoreA, state.scoreB, pA, pB);
-    console.log(oneOver(chances), chances)
+    console.log(rnd(chances), rnd(oneOver(chances)))
+    console.log(state.scoreA, state.scoreB)
+    console.log(rnd(oneOver([state.oddA, state.oddB])), rnd([state.oddA, state.oddB]))
 
 
-    let betAmountA = Math.min(money * .3, Math.max(0.1, money * getPercentageToBet(state.oddA)));
-    let betAmountB = Math.min(money * .3, Math.max(0.1, money * getPercentageToBet(state.oddB)));
-    if (!betOnSetA && 1 / state.oddA < chances[0] + .05 && mBeginA <= 2.5) fillInBet("a", betAmountA, state.oddA, [state.scoreA, state.scoreB])
-    if (!betOnSetB && 1 / state.oddB < chances[1] + .05 && mBeginB <= 2.5) fillInBet("b", betAmountB, state.oddB, [state.scoreA, state.scoreB])
+    let betAmountA = Math.min(money * .3, Math.max(0.1, money * getPercentageToBet(state.oddA+.1)/2));
+    let betAmountB = Math.min(money * .3, Math.max(0.1, money * getPercentageToBet(state.oddB+.1)/2));
+    if (!betOnSetA && 1 / (state.oddA-.05) < chances[0] - .05 && mBeginA <= 2.5) fillInBet("a", betAmountA, state.oddA, [state.scoreA, state.scoreB])
+    if (!betOnSetB && 1 / (state.oddB-.05) < chances[1] - .05 && mBeginB <= 2.5) fillInBet("b", betAmountB, state.oddB, [state.scoreA, state.scoreB])
 }
 
 function getPercentageToBet(odd) {

@@ -281,6 +281,8 @@ function getState() {
 function successFilledInBet(player, bet, odd, score) {
     console.log("success ", player, bet, odd, score)
     betHistory.push(new Bet(player, bet, odd, score))
+    money = getMoneyInBank();
+    console.log("money is now: " + money)
 }
 
 function saveGame() {

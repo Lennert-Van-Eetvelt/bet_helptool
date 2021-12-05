@@ -309,6 +309,10 @@ function bestBet(chance, odd) {
     // console.log(rnd(odd) + '  \t' + rnd(change) + "   \t" + rnd(bestamount) + "   \t"+rnd(maxRooth))
     return bestamount;
 }
+function clone(object) {
+    return JSON.parse(JSON.stringify(object))
+}
+
 
 function nthRoot(x, n) {
     try {

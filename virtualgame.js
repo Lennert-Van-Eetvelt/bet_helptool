@@ -626,9 +626,6 @@ function swapGame(game) {
     return out;
 }
 
-function clone(object) {
-    return JSON.parse(JSON.stringify(object))
-}
 
 
 function calcOddsWithOdds() {
