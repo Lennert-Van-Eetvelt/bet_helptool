@@ -1,1 +1,0 @@
-{"playerAName":"Kalashnikov, Evgeniy","playerBName":"Merkushin, Yuri","beginOddsA":"1.85","beginOddsB":"1.85","states":[{"scoreA":[0,0,0,0,0,0],"scoreB":[0,0,0,0,0,0],"oddA":0,"oddB":0},{"scoreA":[0,0,0,0,0,0],"scoreB":[0,0,0,0,0,0],"oddA":1.58,"oddB":2.3},{"scoreA":[0,0,0,0,0,0],"scoreB":[0,0,0,0,0,0],"oddA":0,"oddB":0}],"time":"2021-11-23 0:45:0"}

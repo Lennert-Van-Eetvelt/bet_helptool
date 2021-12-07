@@ -124,11 +124,9 @@ class ScoreRound {
 
 
 class Player {
-    constructor(beginOdd, maxOdd, wins, maxOddSets, states) {
+    constructor(beginOdd, wins, states) {
         this.beginOdd = beginOdd;
-        this.maxOdd = maxOdd;
         this.wins = wins;
-        this.maxOddSets = maxOddSets;
         this.states = states;
     }
 }

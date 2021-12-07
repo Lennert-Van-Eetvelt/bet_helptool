@@ -102,10 +102,10 @@ function betIfNeeded(state) {
     console.log(rnd(oneOver([state.oddA, state.oddB])), rnd([state.oddA, state.oddB]))
 
 
-    let betAmountA = Math.min(money * .3, Math.max(0.1, money * getPercentageToBet(state.oddA+.1)/2));
-    let betAmountB = Math.min(money * .3, Math.max(0.1, money * getPercentageToBet(state.oddB+.1)/2));
-    if (!betOnSetA && 1 / (state.oddA-.05) < chances[0] - .05 && mBeginA <= 2.5) fillInBet("a", betAmountA, state.oddA, [state.scoreA, state.scoreB])
-    if (!betOnSetB && 1 / (state.oddB-.05) < chances[1] - .05 && mBeginB <= 2.5) fillInBet("b", betAmountB, state.oddB, [state.scoreA, state.scoreB])
+    let betAmountA = Math.min(money * .05, Math.max(0.1, money * getPercentageToBet(state.oddA+.1)/2.5));
+    let betAmountB = Math.min(money * .05, Math.max(0.1, money * getPercentageToBet(state.oddB+.1)/2.5));
+    if (!betOnSetA && 1 / (state.oddA-.05) < chances[0] - .07 && mBeginA <= 2.5) fillInBet("a", betAmountA, state.oddA, [state.scoreA, state.scoreB])
+    if (!betOnSetB && 1 / (state.oddB-.05) < chances[1] - .07 && mBeginB <= 2.5) fillInBet("b", betAmountB, state.oddB, [state.scoreA, state.scoreB])
 }
 
 function getPercentageToBet(odd) {

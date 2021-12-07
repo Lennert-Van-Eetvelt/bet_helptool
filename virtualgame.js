@@ -149,7 +149,7 @@ function calcChanceRandomStates() {
 
     let lastmo = 0
     for (let b = 1; b <= 6; b++) {
-        let mo = predictions[Math.min(predictions.length-1, Math.floor(predictions.length * b / 6))].beginOdd;
+        let mo = predictions[Math.min(predictions.length - 1, Math.floor(predictions.length * b / 6))].beginOdd;
         let subP = [[mo]]
         for (let i = 0; i < 100; i += 10) {
             let pwt = [0, 0, 0, 0, i, 0]
@@ -164,7 +164,7 @@ function calcChanceRandomStates() {
             });
             pwt[0] = rnd(pwt[1] / pwt[2]);
             pwt[3] = rnd(pwt[3] / pwt[2]);
-            pwt[5] = Math.max(0,parseFloat(pwt[3]) - parseFloat(pwt[0]) )+''
+            pwt[5] = Math.max(0, parseFloat(pwt[3]) - parseFloat(pwt[0])) + ''
             subP.push(pwt)
         }
         console.log(subP)
@@ -511,8 +511,8 @@ function getAllPlayers(games) {
 }
 
 function getPlayers(game) {
-    let playerA = new Player(game.beginOddsA, maxOdds(game)[0], getVirtualWinner(game) === "a", getMaxOddsScore(game)[0], clone(game.states));
-    let playerB = new Player(game.beginOddsB, maxOdds(game)[1], getVirtualWinner(game) === "b", getMaxOddsScore(game)[1], clone(swapGame(game).states));
+    let playerA = new Player(game.beginOddsA, getVirtualWinner(game) === "a", clone(game.states));
+    let playerB = new Player(game.beginOddsB, getVirtualWinner(game) === "b", clone(swapGame(game).states));
     return [playerA, playerB]
 }
 
@@ -627,7 +627,6 @@ function swapGame(game) {
 }
 
 
-
 function calcOddsWithOdds() {
     let yD = 6;
     console.log("calcing odds")
@@ -736,6 +735,7 @@ function calcPointsScored() {
     });
 
     console.log(listPlayers)
+    console.log(JSON.stringify(listPlayers))
 
     let setOddList = [];
     let yDev = []
@@ -771,8 +771,6 @@ function calcPointsScored() {
     console.log(setOddList)
     console.log(JSON.stringify(setOddList))
 }
-
-
 
 
 function getAverageTotalPoints(players) {
