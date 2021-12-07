@@ -1,6 +1,6 @@
 ﻿console.log("help tool v2.0.2")
 try{
-    console.log("all players",All_Players)
+    console.log("all players length ",All_Players.length)
 }catch (e){
     console.log("couldn't load all players")
 }
