@@ -1,4 +1,4 @@
-﻿console.log("help tool v2")
+﻿console.log("help tool v2.0.2")
 
 // let All_Players = [];
 // fetch(chrome.runtime.getURL("./ALL_PLAYERS.json"))
