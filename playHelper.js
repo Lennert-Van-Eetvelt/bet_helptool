@@ -1,4 +1,9 @@
 ﻿console.log("help tool v2.0.2")
+try{
+    console.log("all players",All_Players)
+}catch (e){
+    console.log("couldn't load all players")
+}
 
 // let All_Players = [];
 // fetch(chrome.runtime.getURL("./ALL_PLAYERS.json"))
